@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -37,12 +38,17 @@ public class MainViewController implements Initializable {
 	
 	@FXML
 	public void onMenuItemDepartmentAction() {
-		LoadView2("/gui/DepartmentList.fxml");
+		
+		LoadView("/gui/DepartmentList.fxml", (DepartmentListController controller) -> {
+			controller.setDepartmentService(new DepartmentService());
+			controller.updateTableView();
+			//Açao de inicialização do controller DepartmentListController
+		});
 	}
 	
 	@FXML
 	public void onMenuItemAboutAction() {
-		LoadView("/gui/About.fxml");
+		LoadView("/gui/About.fxml", x -> {} );
 	}
 	
 	@Override
@@ -51,26 +57,9 @@ public class MainViewController implements Initializable {
 		
 	}
 	
-	private synchronized void LoadView(String absoluteName) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
-			VBox newVbox = loader.load(); 
-			
-			Scene mainScene = Main.getMainScene();	
-			
-			VBox mainVbox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
-			
-			Node mainMenu = mainVbox.getChildren().get(0); 
-			mainVbox.getChildren().clear();
-			mainVbox.getChildren().add(mainMenu);
-			mainVbox.getChildren().addAll(newVbox.getChildren());
-			
-		}catch(IOException e) {
-			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
-		}
-	}	
+	
 	//carrega a tela DepartmentListController com injeção de dependencia do DepartmentService
-	private synchronized void LoadView2(String absoluteName) {
+	private synchronized<T> void  LoadView(String absoluteName, Consumer<T> initializingAction) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			VBox newVbox = loader.load(); 
@@ -84,9 +73,8 @@ public class MainViewController implements Initializable {
 			mainVbox.getChildren().add(mainMenu);
 			mainVbox.getChildren().addAll(newVbox.getChildren());
 			
-			DepartmentListController controller = loader.getController();
-			controller.setDepartmentService(new DepartmentService());
-			controller.updateTableView();
+			T controller = loader.getController();
+			initializingAction.accept(controller);
 			
 		}catch(IOException e) {
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
