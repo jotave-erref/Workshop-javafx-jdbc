@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constrains;
 import gui.util.Utils;
@@ -23,6 +26,9 @@ public class DepartmentFormController implements Initializable {
 	
 	private Department entity;
 	
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
+
+	
 	@FXML
 	private TextField txtId;
 	
@@ -38,7 +44,19 @@ public class DepartmentFormController implements Initializable {
 	@FXML
 	private Button btCancel;
 	
+	public Department setDepartment(Department entity) {
+		return this.entity = entity;
+	}
 	
+	public void setDepartmentService(DepartmentService service) {
+		 this.service = service;
+	}
+	
+	//inscrever o listener na lista 
+		public void subscribeDataChangeListener (DataChangeListener listener) {
+			dataChangeListeners.add(listener);
+			
+		}
 	
 	@FXML
 	public void onTxtIdAction() {
@@ -61,6 +79,7 @@ public class DepartmentFormController implements Initializable {
 		try {
 			entity = getFormData();
 			service.SaveOrUpdate(entity);
+			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
 			
 		}catch(DbException e) {
@@ -68,6 +87,12 @@ public class DepartmentFormController implements Initializable {
 		}
 	}
 	
+	private void notifyDataChangeListeners() {
+		for(DataChangeListener listener : dataChangeListeners) {
+			listener.onDataChanged();
+		}
+	}
+
 	private Department getFormData() {
 		Department obj = new Department();
 		obj.setId(Utils.tryParseToInt(txtId.getId()));
@@ -90,9 +115,7 @@ public class DepartmentFormController implements Initializable {
 		Constrains.setTextFieldMaxLength(txtName, 30);
 	}
 
-	public Department setDepartment(Department entity) {
-		return this.entity = entity;
-	}
+	
 	
 	public void updateFormData() {
 		if(entity == null) {
@@ -101,8 +124,5 @@ public class DepartmentFormController implements Initializable {
 		txtId.setText(String.valueOf(entity.getId()));
 		txtName.setText(entity.getName());
 	}
-	
-	public void setDepartmentService(DepartmentService service) {
-		 this.service = service;
-	}
+		
 }
