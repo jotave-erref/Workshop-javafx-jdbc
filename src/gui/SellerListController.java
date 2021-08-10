@@ -72,7 +72,7 @@ public class SellerListController implements Initializable, DataChangeListener {
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
 		Seller obj = new Seller();
-		createDialogForm(obj, "/gui/SellerForm.fxml", parentStage);
+			createDialogForm(obj, "/gui/SellerForm.fxml", parentStage);
 	}
 
 	public void setSellerService(SellerService service) {
@@ -129,6 +129,7 @@ public class SellerListController implements Initializable, DataChangeListener {
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
 	}
