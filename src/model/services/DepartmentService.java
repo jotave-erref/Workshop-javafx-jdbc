@@ -11,7 +11,7 @@ public class DepartmentService {
 	private DepartmentDao dao = DaoFactory.createDepartmentDao();
 	
 	//Busca os departamentos no banco de dados
-	public List<Department> finAll(){
+	public List<Department> findAll(){
 		return dao.findAll();
 	}
 	
